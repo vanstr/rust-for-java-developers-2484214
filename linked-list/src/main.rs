@@ -1,12 +1,12 @@
 type Link<T> = Option<Box<Node<T>>>;
 
 pub struct LinkedList<T> {
-    head: Link<T>
+    head: Link<T>,
 }
 
 pub struct Node<T> {
     item: T,
-    next: Link<T>
+    next: Link<T>,
 }
 
 impl<T> Node<T> {
@@ -21,10 +21,7 @@ impl<T> LinkedList<T> {
     }
 
     fn push(&mut self, item: T) {
-        let new_node = Box::new(Node {
-            item,
-            next: None,
-        });
+        let new_node = Box::new(Node { item, next: None });
 
         let mut current = &mut self.head;
         while let Some(ref mut node) = current {
@@ -42,12 +39,18 @@ impl<T> LinkedList<T> {
 
     // TODO: optional
 
-    // fn greatest(&self) -> Option<&T>
-    // where
-    //     T: Ord,
-    // {
-    //  ..
-    // }
+    fn greatest(&self) -> Option<&T> where T: Ord {
+        let mut current = &self.head;
+        let mut greatest: Option<&T> = None;
+
+        while let Some(node) = current {
+            if greatest.is_none() || node.item > *greatest.unwrap() {
+                greatest = Some(&node.item);
+            }
+            current = &node.next;
+        }
+        greatest
+    }
 }
 
 fn main() {
@@ -64,5 +67,5 @@ fn main() {
         assert_eq!(node.get(), &2);
     }
 
-    // assert_eq!(list.greatest(), Some(&5));
+    assert_eq!(list.greatest(), Some(&5));
 }
