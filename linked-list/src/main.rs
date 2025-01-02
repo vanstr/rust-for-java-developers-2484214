@@ -1,5 +1,18 @@
-#[derive(Debug)]
+type Link<T> = Option<Box<Node<T>>>;
+
 pub struct LinkedList<T> {
+    head: Link<T>
+}
+
+pub struct Node<T> {
+    item: T,
+    next: Link<T>
+}
+
+impl<T> Node<T> {
+    fn get(&self) -> &T {
+        &self.item
+    }
 }
 
 impl<T> LinkedList<T> {
@@ -8,11 +21,23 @@ impl<T> LinkedList<T> {
     }
 
     fn push(&mut self, item: T) {
-        todo!()
+        let new_node = Box::new(Node {
+            item,
+            next: None,
+        });
+
+        let mut current = &mut self.head;
+        while let Some(ref mut node) = current {
+            current = &mut node.next;
+        }
+        *current = Some(new_node);
     }
 
     fn pop(&mut self) -> Option<T> {
-        todo!()
+        self.head.take().map(|node| {
+            self.head = node.next;
+            node.item
+        })
     }
 
     // TODO: optional
@@ -35,6 +60,7 @@ fn main() {
     list.pop();
 
     if let Some(node) = &list.head {
+        println!("{}", node.get());
         assert_eq!(node.get(), &2);
     }
 
