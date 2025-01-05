@@ -31,7 +31,7 @@ impl<T> LinkedList<T> {
     }
 
     fn pop(&mut self) -> Option<T> {
-        self.head.take().map(|node| {
+        self.head.take().map(|node: Box<Node<T>>| {
             self.head = node.next;
             node.item
         })
@@ -40,7 +40,7 @@ impl<T> LinkedList<T> {
     // TODO: optional
 
     fn greatest(&self) -> Option<&T> where T: Ord {
-        let mut current = &self.head;
+        let mut current: &Option<Box<Node<T>>> = &self.head;
         let mut greatest: Option<&T> = None;
 
         while let Some(node) = current {
