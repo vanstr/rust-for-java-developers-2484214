@@ -30,16 +30,16 @@ impl FromStr for Field {
         }
 
         if let Ok(n) = s.parse::<f64>() {
-            Field::Number(n) // TODO: fix
+            Ok(Field::Number(n))
         } else {
-            Field::Text(s.to_string()) // TODO: fix
+            Ok(Field::Text(s.to_string()))
         }
     }
 }
 
 fn parse_csv<T: Read>(mut source: T) -> Result<TypedCsv> {
     let mut raw_data = String::new();
-    source.read_to_string(&mut raw_data); // TODO: fix
+    source.read_to_string(&mut raw_data)?;
 
     let mut headers = Vec::new();
     let mut rows = Vec::new();
@@ -55,8 +55,8 @@ fn parse_csv<T: Read>(mut source: T) -> Result<TypedCsv> {
         let mut row = HashMap::with_capacity(headers.len());
 
         for (header, raw_field) in headers.iter().zip(line.split(',')) {
-            let field = raw_field.parse::<Field>(); // TODO: fix
-            row.insert(header.clone(), field);
+            let field = raw_field.parse::<Field>();
+            row.insert(header.clone(), field.ok());
         }
 
         if row.len() != headers.len() {
@@ -66,7 +66,7 @@ fn parse_csv<T: Read>(mut source: T) -> Result<TypedCsv> {
         rows.push(row);
     }
 
-    TypedCsv { rows } // TODO: fix
+    Ok(TypedCsv { rows })
 }
 
 fn generate_report(csv: &TypedCsv) -> Report {
@@ -86,9 +86,15 @@ fn generate_report(csv: &TypedCsv) -> Report {
         for field in row.values() {
             // TODO: fix below
             match field {
-                Ok(Field::Text(t)) => rep.length_of_text_fields += t.len(),
-                Ok(Field::Number(n)) => rep.sum_of_numeric_fields += n,
-                Err => rep.num_missing_fields += 1,
+                Some(Field::Number(v)) => {
+                    rep.sum_of_numeric_fields += v;
+                }
+                Some(Field::Text(v)) => {
+                    rep.length_of_text_fields += v.len();
+                }
+                None => {
+                    rep.num_missing_fields += 1;
+                }
             }
         }
     }
@@ -100,5 +106,5 @@ fn main() {
     let data: &[u8] = include_bytes!("dogs.txt");
     let csv = parse_csv(data); // TODO: fix
 
-    println!("{:#?}", generate_report(&csv));
+    println!("{:#?}", generate_report(&csv.unwrap()));
 }
