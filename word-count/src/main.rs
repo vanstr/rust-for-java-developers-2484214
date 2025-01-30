@@ -17,13 +17,10 @@ fn tokenize(text: &str) -> impl Iterator<Item = &str> {
 }
 
 fn main() {
-    let word_counts =
-        tokenize(TEXT)
-            .map(|word| word.to_lowercase())
-            .fold(HashMap::new(), |mut acc, word| {
-                *(acc.entry(word).or_insert(0)) += 1;
-                acc
-            });
+    let word_counts = tokenize(TEXT).fold(HashMap::new(), |mut acc, word| {
+        *(acc.entry(word).or_insert(0)) += 1;
+        acc
+    });
 
     for (word, count) in word_counts.iter() {
         println!("{}: {}", word, count);
